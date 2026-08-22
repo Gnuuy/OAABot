@@ -490,3 +490,7 @@ Data/leaderboards/
 Data/logs/
 Data/moderators.json
 Data/owned-booth-items.json
+
+### Local secrets (contains real F-Chat account credentials) ###
+Presentation/appsettings.json
+Presentation/appsettings.json
