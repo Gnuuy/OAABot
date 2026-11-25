@@ -490,6 +490,11 @@ Data/leaderboards/
 Data/logs/
 Data/moderators.json
 Data/owned-booth-items.json
+Data/banned.json
+Data/blowbucks.json
+Data/bot-status.json
+Data/gnuuy-train.json
+Data/gloryhole/profiles.json
 
 ### Local secrets (contains real F-Chat account credentials) ###
 Presentation/appsettings.json
