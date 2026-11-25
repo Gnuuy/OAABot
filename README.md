@@ -94,12 +94,13 @@ Even the most fabulous romance needs a little bit of paperwork first, darling. H
 2. **Open `OAABot.sln`** (in Rider, Visual Studio, or just build from the CLI).
 3. **Get yourself a dedicated F-List account for the bot to use.** Don't use your own personal account, silly — every good bot deserves its own identity!
 4. **Find your channel's code.** It's the `adh-...`-style id in the channel's info panel or URL — not the display name.
-5. **Fill in `Presentation/appsettings.json`.** It ships scrubbed with placeholders and comments explaining exactly what goes where:
+5. **Create `Presentation/appsettings.json`.** Copy `Presentation/appsettings.example.json` to `Presentation/appsettings.json` — the example ships scrubbed with placeholders and comments explaining exactly what goes where. Then fill in your copy:
    - `Account` → the bot's F-List account name
    - `Password` → the bot's F-List account password
    - `AutoJoinChannelCode` → the channel code from step 4
+   - `Character` → the F-List character the bot appears as
 
-   **Never commit real credentials here!** Keep this file scrubbed in source control — if you need real values for a deployment, use user secrets or environment variables instead.
+   `appsettings.json` is git-ignored, so your real credentials stay on your machine. **Never put real credentials in `appsettings.example.json`** — that one *is* committed!
 6. **Run it!** From the repo root:
    ```
    dotnet run --project Presentation
