@@ -64,6 +64,79 @@ public sealed class GloryholeManager : IGloryholeManager
             return _booths.FirstOrDefault(b => b.Number == number);
     }
 
+    public IReadOnlyList<GHEvent> RemoveCharacter(string user, string reason)
+    {
+        lock (SyncRoot)
+        {
+            var occupantBooth = _booths.FirstOrDefault(b => b.Occupants.Contains(user));
+            if (occupantBooth is not null)
+                return RemoveOccupant(occupantBooth, user, reason);
+
+            var participantBooth = _booths.FirstOrDefault(b => b.Participants.Contains(user));
+            if (participantBooth is not null)
+                return RemoveParticipant(participantBooth, user, reason);
+
+            return [];
+        }
+    }
+
+    private List<GHEvent> RemoveOccupant(Booth booth, string user, string reason)
+    {
+        var events = new List<GHEvent>();
+
+        var occupantsBefore = booth.Occupants.Count;
+        var wasOpenBefore = booth.IsOpen;
+        var participantsBefore = booth.Participants.Count;
+        var occIndex = OccupantIndex(booth, user);
+
+        events.Add(Pm(user, $"You were removed from Booth #{booth.Number} {reason}."));
+
+        booth.Leave(user);
+
+        if (occupantsBefore > 1)
+        {
+            foreach (var other in booth.Occupants)
+                events.Add(Pm(other, $"Occupant #{occIndex} was removed {reason}."));
+        }
+
+        if (wasOpenBefore && participantsBefore > 0)
+        {
+            var chMsg = occupantsBefore > 1
+                ? $"Occupant #{occIndex} in Booth #{booth.Number} was removed {reason}."
+                : $"An occupant in Booth #{booth.Number} was removed {reason}.";
+
+            if (booth.Occupants.Count == 0)
+                chMsg += " The booth is now empty.";
+
+            events.Add(Channel(chMsg));
+        }
+
+        ClearAfk(Role.Occupant, booth.Number, user);
+        _disconnects.Remove(user);
+
+        return events;
+    }
+
+    private List<GHEvent> RemoveParticipant(Booth booth, string user, string reason)
+    {
+        var events = new List<GHEvent>();
+        var index = ParticipantIndex(booth, user);
+
+        events.Add(Pm(user, $"You were removed from Booth #{booth.Number} {reason}."));
+
+        booth.LeaveHole(user);
+
+        events.Add(Channel($"{user} was removed from Booth #{booth.Number} {reason}."));
+
+        foreach (var occ in booth.Occupants)
+            events.Add(Pm(occ, $"Participant #{index} was removed {reason}."));
+
+        ClearAfk(Role.Participant, booth.Number, user);
+        _disconnects.Remove(user);
+
+        return events;
+    }
+
     public IReadOnlyList<GHEvent> MarkTypingActivity(string user)
     {
         lock (SyncRoot)

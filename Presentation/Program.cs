@@ -23,6 +23,7 @@ services.AddSingleton<IGloryholeManager>(sp =>
 services.AddSingleton<IRoomProvider>(sp =>
     new RoomProvider(sp.GetRequiredService<IOptions<FChatConfig>>().Value.AutoJoinChannelCode));
 services.AddSingleton<IModeratorRepository, ModeratorRepository>();
+services.AddSingleton<IBannedUserRepository, BannedUserRepository>();
 services.AddSingleton<IBotStatusRepository, BotStatusRepository>();
 services.AddSingleton<IBlowbucksRepository, BlowbucksRepository>();
 services.AddSingleton<IBoothItemCatalog, BoothItemCatalog>();

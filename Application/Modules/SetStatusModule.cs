@@ -10,6 +10,7 @@ public class SetStatusModule : ModuleBase
     private readonly IBotStatusRepository _statusRepository;
 
     public override bool HasHelpfulInfo => true;
+    public override bool ModeratorOnly => true;
     public override string Command => "set_status";
     public override string CommandDescription => "(Moderators only) Set the bot's F-Chat status message. Persists across restarts.";
 

@@ -56,7 +56,7 @@ people with your name on display--or simply enjoy the thrill of gloryholes--then
 ╔══════════════════════════════════════════╣ [b]GLORYHOLES[/b] ╠════════════════════════════════════
 ║ Gloryholes are public and is where you can receive service from a booth in public.
 ║
-║ If you want to publically use a gloryhole, you can head on over to [session=Oral Addicts Anonymous]Oral Addicts Anonymous[/session] and
+║ If you want to publically use a gloryhole, you can head on over to [session=Oral Addicts Anonymous]adh-62e359721cbdac2218c3[/session] and
 ║ type [/color][color=green]!get_gloryholes[/color][color=blue] to get a list of available gloryholes.
 ║
 ║ [/color] [color=yellow]All commands containing the word 'gloryhole' only works in the public channel.[/color][color=blue]

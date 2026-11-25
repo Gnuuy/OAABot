@@ -16,6 +16,11 @@ public abstract class ModuleBase
     public abstract string Command { get; }
     public virtual string CommandDescription => "";
 
+    // Hides this command from !commands for anyone the CommandListModule doesn't confirm is a
+    // moderator - the module itself is still responsible for rejecting non-moderators who invoke
+    // it directly, this only controls whether it's advertised.
+    public virtual bool ModeratorOnly => false;
+
     public abstract Task HandleAsync(InboundMessage message);
 
     public virtual bool CanHandle(InboundMessage message)

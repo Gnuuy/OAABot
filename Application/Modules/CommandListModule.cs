@@ -5,7 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Application.Modules;
 
-public class CommandListModule(IOutboundMessageQueue outboundQueue, IServiceProvider serviceProvider)
+public class CommandListModule(
+    IOutboundMessageQueue outboundQueue,
+    IServiceProvider serviceProvider,
+    IModeratorRepository moderatorRepository)
     : ModuleBase(outboundQueue)
 {
     public override bool HasHelpfulInfo => true;
@@ -14,8 +17,12 @@ public class CommandListModule(IOutboundMessageQueue outboundQueue, IServiceProv
 
     public override async Task HandleAsync(InboundMessage message)
     {
+        var isModerator = message.CharacterName is not null
+            && await moderatorRepository.IsModeratorAsync(message.CharacterName);
+
         var lines = serviceProvider.GetServices<ModuleBase>()
             .Where(module => module.HasHelpfulInfo)
+            .Where(module => !module.ModeratorOnly || isModerator)
             .OrderBy(module => module.Command, StringComparer.OrdinalIgnoreCase)
             .Select(module => $"!{module.Command} - {module.CommandDescription}");
 

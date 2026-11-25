@@ -23,6 +23,12 @@ public interface IGloryholeManager
     Booth? FindBoothByParticipant(string user);
     Booth? FindBoothById(int number);
 
+    // Moderator-driven removal: finds the user wherever they are (occupant or participant) and
+    // removes them, producing the same style of notifications as an AFK kick. `reason` is a
+    // clause appended to "You were removed from Booth #N ..." (e.g. "by a moderator"). Returns an
+    // empty list if the user isn't currently in any booth.
+    IReadOnlyList<GHEvent> RemoveCharacter(string user, string reason);
+
     // Occupants only reset their AFK timer by typing (TPN), never by sending a message.
     IReadOnlyList<GHEvent> MarkTypingActivity(string user);
 

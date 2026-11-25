@@ -11,6 +11,7 @@ public class GiveTokenModule : ModuleBase
     private readonly IBlowbucksRepository _blowbucksRepository;
 
     public override bool HasHelpfulInfo => true;
+    public override bool ModeratorOnly => true;
     public override string Command => "give_token";
     public override string CommandDescription => "(Moderators only) Give a character tokens (and an equal amount of Blowbucks). Usage: !give_token <Character Name> <amount>";
 

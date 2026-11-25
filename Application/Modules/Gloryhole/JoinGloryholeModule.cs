@@ -7,15 +7,20 @@ namespace Application.Modules.Gloryhole;
 public class JoinGloryholeModule : ModuleBase
 {
     private readonly IGloryholeManager _gloryholeManager;
+    private readonly IBannedUserRepository _bannedUserRepository;
 
     public override bool HasHelpfulInfo => true;
     public override string Command => "join_gloryhole";
     public override string CommandDescription => "Join an occupied, open booth as a participant.";
 
-    public JoinGloryholeModule(IOutboundMessageQueue outboundQueue, IGloryholeManager gloryholeManager)
+    public JoinGloryholeModule(
+        IOutboundMessageQueue outboundQueue,
+        IGloryholeManager gloryholeManager,
+        IBannedUserRepository bannedUserRepository)
         : base(outboundQueue)
     {
         _gloryholeManager = gloryholeManager;
+        _bannedUserRepository = bannedUserRepository;
     }
 
     public override bool CanHandle(InboundMessage message) =>
@@ -25,6 +30,13 @@ public class JoinGloryholeModule : ModuleBase
     {
         var character = message.CharacterName!;
         var channelId = message.ChannelId ?? _gloryholeManager.ChannelId;
+
+        if (await _bannedUserRepository.IsBannedAsync(character))
+        {
+            await SendPrivateAsync(character, "You are banned from using the booths and gloryholes.");
+            return;
+        }
+
         var parts = message.Message.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         if (parts.Length != 1 || !int.TryParse(parts[0], out var boothNumber))
