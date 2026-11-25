@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Application.Interfaces;
 using Domain;
 using Domain.Enums;
@@ -9,6 +10,13 @@ public class GnuuyModule : ModuleBase
 {
     private const string TrainIcon = "[eicon]elrout[/eicon]";
     private static readonly TimeSpan TrainWindow = TimeSpan.FromSeconds(30);
+
+    private const string ResponsesFile = "gnuuy-responses";
+    private const string ViktorResponsesFile = "viktorbullying";
+
+    // Whole word only, any casing - "Viktor", "VIKTOR!" and "viktor's" all count, but a longer
+    // word that merely contains it (e.g. "viktorious") doesn't.
+    private static readonly Regex ViktorPattern = new(@"\bviktor\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private readonly IFileOperations _fileOperations;
     private readonly ILogger<GnuuyModule> _logger;
@@ -58,10 +66,24 @@ public class GnuuyModule : ModuleBase
 
     private async Task HandleGnuuyCommandAsync(InboundMessage message)
     {
-        var responses = await LoadResponsesAsync();
+        string[] responses = [];
+
+        // "!gnuuy ... viktor ..." anywhere after the command swaps to the viktor-specific lines.
+        // Falls back to the regular pool if that file is missing or empty, so the command never
+        // goes silent just because nobody has written any viktor lines yet.
+        if (ViktorPattern.IsMatch(message.Message ?? string.Empty))
+        {
+            responses = await LoadResponsesAsync(ViktorResponsesFile);
+            if (responses.Length == 0)
+                _logger.LogWarning("[Gnuuy]: No responses are configured in {File}.json, using the regular gnuuy responses.", ViktorResponsesFile);
+        }
+
+        if (responses.Length == 0)
+            responses = await LoadResponsesAsync(ResponsesFile);
+
         if (responses.Length == 0)
         {
-            _logger.LogWarning("[Gnuuy]: No responses are configured in gnuuy-responses.json.");
+            _logger.LogWarning("[Gnuuy]: No responses are configured in {File}.json.", ResponsesFile);
             return;
         }
 
@@ -179,15 +201,15 @@ public class GnuuyModule : ModuleBase
 
     private static string PersonWord(int count) => count == 1 ? "person" : "people";
 
-    private async Task<string[]> LoadResponsesAsync()
+    private async Task<string[]> LoadResponsesAsync(string fileName)
     {
         try
         {
-            return await _fileOperations.ReadFromJsonFileAsync<string[]>("gnuuy-responses");
+            return await _fileOperations.ReadFromJsonFileAsync<string[]>(fileName) ?? [];
         }
         catch (FileNotFoundException)
         {
-            _logger.LogWarning("[Gnuuy]: gnuuy-responses.json was not found.");
+            _logger.LogWarning("[Gnuuy]: {File}.json was not found.", fileName);
             return [];
         }
     }
